@@ -1,20 +1,38 @@
 import React, { Component } from "react";
 import "./todolist.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import FlipMove from "react-flip-move";
 export default class Todolist extends Component {
   render() {
-    const item = this.props.item;
+    const {
+      item,
+      onCheck,
+      setUpdate,
+      deleteItem,
+      valueDisplay,
+      clearItem,
+      Total,
+    } = this.props;
     const listItem = item.map((i) => {
+      const isChecked = {
+        textDecoration: i.isChecked ? "line-through" : "none",
+      };
       return (
         <div className="list" key={i.key}>
           <p>
             <input
+              className="chkbox"
+              type="checkbox"
+              checked={i.isChecked}
+              onChange={() => onCheck(i.key)}
+            ></input>
+            <input
+              className="inputText"
               type="text"
-              id={i.key}
-              value={i.text}
+              style={isChecked}
+              key={i.key}
+              value={i.text.trim(1)}
               onChange={(e) => {
-                this.props.setUpdate(e.target.value, i.key);
+                setUpdate(e.target.value, i.key);
               }}
             />
 
@@ -22,7 +40,7 @@ export default class Todolist extends Component {
               <FontAwesomeIcon
                 className="faicon"
                 icon="trash"
-                onClick={() => this.props.deleteItem(i.key)}
+                onClick={() => deleteItem(i.key)}
               />
             </span>
           </p>
@@ -31,9 +49,42 @@ export default class Todolist extends Component {
     });
     return (
       <div>
-        <FlipMove duration={500} easing="ease-in-out">
-          {listItem}
-        </FlipMove>
+        <div className="maindiv">{listItem}</div>
+        <div className="itemAndButton">
+          <h1 className="totalItem">Total Item:{Total.length}</h1>
+          <button
+            className="allbutton"
+            onClick={() => {
+              valueDisplay("All");
+            }}
+          >
+            All
+          </button>
+          <button
+            className="allbutton"
+            onClick={() => {
+              valueDisplay("Active");
+            }}
+          >
+            Active
+          </button>
+          <button
+            className="allbutton"
+            onClick={() => {
+              valueDisplay("Completed");
+            }}
+          >
+            Completed
+          </button>
+          <button
+            className="allbutton"
+            onClick={() => {
+              clearItem();
+            }}
+          >
+            Clear
+          </button>
+        </div>
       </div>
     );
   }

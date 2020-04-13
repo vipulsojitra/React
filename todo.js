@@ -12,6 +12,8 @@ export default class Todo extends Component {
       text: "",
       key: "",
     },
+    isDispaly: "All",
+    allCheck: false,
   };
   addButton = (e) => {
     e.preventDefault();
@@ -28,7 +30,9 @@ export default class Todo extends Component {
     }
   };
   handleInput = (e) => {
-    this.setState({ currentItem: { text: e.target.value, key: Date.now() } });
+    this.setState({
+      currentItem: { text: e.target.value, key: Date.now(), isChecked: false },
+    });
   };
   componentDidMount() {
     this.userData = JSON.parse(localStorage.getItem("item"));
@@ -60,16 +64,64 @@ export default class Todo extends Component {
     this.setState({ item: item });
   };
 
-  render() {
-    const Total = this.state.item.map((item) => {
-      return item.length;
+  onCheck = (key) => {
+    const item = this.state.item;
+    item.map((item) => {
+      if (item.key === key) {
+        if (item.isChecked === true) {
+          return (item.isChecked = false);
+        } else {
+          return (item.isChecked = true);
+        }
+      }
     });
+    this.setState({ item: item });
+  };
+
+  valueDisplay = (e) => {
+    this.setState({ isDispaly: e });
+  };
+  clearItem = () => {
+    const filtterItem = this.state.item.filter((item) => !item.isChecked);
+    this.setState({ item: filtterItem });
+  };
+  onAllCheck = (e) => {
+    let checked = e.target.checked;
+    console.log("a", checked);
+    const item = this.state.item;
+    item.map((item) => {
+      item.isChecked = checked;
+    });
+    this.setState({ item: item, allCheck: checked });
+    console.log(this.state.allCheck);
+  };
+  render() {
+    let array = [];
+
+    if (this.state.isDispaly === "All") {
+      array = this.state.item;
+      console.log("kem", array);
+    } else if (this.state.isDispaly === "Active") {
+      array = this.state.item.filter((item) => !item.isChecked);
+      console.log("kem1", array);
+    } else if (this.state.isDispaly === "Completed") {
+      array = this.state.item.filter((item) => item.isChecked);
+    }
+
+    let Total = [];
+    Total = this.state.item.filter((item) => !item.isChecked);
     return (
       <div className="to-do-list">
         <header>
           <form id="to-do-form" onSubmit={this.addButton}>
-            <h1 className="totalItem">Total Item={Total.length}</h1>
             <input
+              className="allcheckbox"
+              type="checkbox"
+              checked={this.state.allCheck}
+              onChange={this.onAllCheck}
+            ></input>
+            <input
+              className="txtbox"
               type="text"
               placeholder="Enter Item"
               onChange={this.handleInput}
@@ -79,9 +131,13 @@ export default class Todo extends Component {
           </form>
         </header>
         <Todolist
-          item={this.state.item}
+          item={array}
           deleteItem={this.deleteItem}
           setUpdate={this.setUpdate}
+          onCheck={this.onCheck}
+          valueDisplay={this.valueDisplay}
+          clearItem={this.clearItem}
+          Total={Total}
         />
       </div>
     );
